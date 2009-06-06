@@ -1,0 +1,32 @@
+Revision history for JavaScript-Beautifier
+
+0.10
+        Fix for "function" statement
+
+0.09    2009.06.01
+        Strip trailing newlines, minor support for <!--
+
+0.08    2009.05.13
+        bin/js_beatify.pl
+
+0.07    2009.05.13
+        Spidermonkey sharp variable support
+
+0.06	2009.05.05
+        Fix for { /regexp/ } mess up.
+
+0.05    2009.05.05
+        do { ... } while (...) spacing fixes
+
+0.04    2009.03.23
+        Preserve existing line breaks?
+
+0.03    2008.12.18
+        tiny POD updates
+
+0.02    2008.12.18
+        more test cases
+
+0.01    Date/time
+        First version, released on an unsuspecting world.
+

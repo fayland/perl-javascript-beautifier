@@ -1,0 +1,11 @@
+bin/js_beatify.pl
+Build.PL
+Changes
+lib/JavaScript/Beautifier.pm
+Makefile.PL
+MANIFEST			This list of files
+README
+t/00-load.t
+t/01-javascript-beauty.t
+t/pod.t
+META.yml
