@@ -17,6 +17,11 @@ my $builder = Module::Build->new(
     script_files => [
         'bin/js_beautify.pl',
     ],
+    meta_merge     => {
+        resources => {
+            repository => 'http://github.com/fayland/perl-javascript-beautifier/tree/master',
+        }
+    },
 );
 
 $builder->create_build_script();
