@@ -1,5 +1,8 @@
 Revision history for JavaScript-Beautifier
 
+0.11    2009.06.09
+        Fix .git MANIFEST
+
 0.10	2009.06.08
         Fix for "function" statement
 
