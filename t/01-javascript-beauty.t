@@ -87,6 +87,9 @@ my @tests = (
     [ "a=/regexp", "a = /regexp" ], # incomplete regexp
     [ "{a:#1=[],b:#1#,c:#999999#}", "{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}" ],
 
+    ["<!--\nsomething();\n-->", "<!--\nsomething();\n-->" ],
+    ["<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->"],
+
     [ 'var o=$.extend(a,function(){alert(x);}', "var o = \$.extend(a, function() {\n    alert(x);\n}" ],
     [ 'var o=$.extend(a);function(){alert(x);}', "var o = \$.extend(a);\nfunction() {\n    alert(x);\n}" ],
  );
