@@ -89,6 +89,8 @@ my @tests = (
 
     ["<!--\nsomething();\n-->", "<!--\nsomething();\n-->" ],
     ["<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->"],
+    ["<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->"],
+    ["<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->"],
 
     [ 'var o=$.extend(a,function(){alert(x);}', "var o = \$.extend(a, function() {\n    alert(x);\n}" ],
     [ 'var o=$.extend(a);function(){alert(x);}', "var o = \$.extend(a);\nfunction() {\n    alert(x);\n}" ],
