@@ -1,6 +1,6 @@
 Revision history for JavaScript-Beautifier
 
-0.12    
+0.12    2009.07.26
         fixed broken <!-- / --> handline
         Allow unescaped / in regexp character classes.
         Added space between anon function parens.
