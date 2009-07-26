@@ -72,7 +72,7 @@ sub js_beautify {
                 # do nothing on (( and )( and ][ and ]( ..
             } elsif ( $last_type ne 'TK_WORD' && $last_type ne 'TK_OPERATOR' ) {
                 print_space();
-            } elsif ( (grep { $last_word eq $_ } @line_starter) && $last_word ne 'function' ) {
+            } elsif ( grep { $last_word eq $_ } @line_starter ) {
                 print_space();
             }
             print_token();
