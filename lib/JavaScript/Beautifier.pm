@@ -490,20 +490,46 @@ sub get_next_token {
          my $esc = 0;
          my $resulting_string = $c;
          if ( $parser_pos < scalar @input ) {
-             while ( $esc || $input[$parser_pos] ne $sep ) {
-                 $resulting_string .= $input[$parser_pos];
-                 if ( not $esc ) {
-                     $esc = ( $input[$parser_pos] eq '\\' ) ? 1 : 0;
-                 } else {
-                     $esc = 0;
+            if ( $sep eq '/') {
+                # handle regexp separately...
+                my $in_char_class = 0;
+                while ( $esc || $in_char_class || $input[$parser_pos] ne $sep ) {
+                    $resulting_string .= $input[$parser_pos];
+                    if ( not $esc ) {
+                        $esc = ( $input[$parser_pos] eq '\\' ) ? 1 : 0;
+                        if ( $input[$parser_pos] eq '[' ) {
+                            $in_char_class = 1;
+                        } elsif ( $input[$parser_pos] eq ']' ) {
+                            $in_char_class = 0;
+                        }
+                    } else {
+                        $esc = 0;
+                    }
+                    $parser_pos++;
+                    if ( $parser_pos >= scalar @input ) {
+                        # incomplete string/rexp when end-of-file reached.
+                        # bail out with what had been received so far.
+                        return [$resulting_string, 'TK_STRING'];
+                     }
                  }
-                 $parser_pos++;
-                 if ( $parser_pos >= scalar @input ) {
-                    # incomplete string/rexp when end-of-file reached.
-                    # bail out with what had been received so far.
-                    return [$resulting_string, 'TK_STRING'];
-                 }
-             }
+                 
+             } else {
+                # and handle string also separately
+                while ( $esc || $input[$parser_pos] ne $sep ) {
+                    $resulting_string .= $input[$parser_pos];
+                    if ( not $esc ) {
+                        $esc = ( $input[$parser_pos] eq '\\' ) ? 1 : 0;
+                    } else {
+                        $esc = 0;
+                    }
+                    $parser_pos++;
+                    if ( $parser_pos >= scalar @input ) {
+                        # incomplete string/rexp when end-of-file reached.
+                        # bail out with what had been received so far.
+                        return [$resulting_string, 'TK_STRING'];
+                     }
+                }
+            }
          }
          $parser_pos++;
          $resulting_string .= $sep;

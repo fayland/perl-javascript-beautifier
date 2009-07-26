@@ -2,6 +2,7 @@ Revision history for JavaScript-Beautifier
 
 0.12    
         fixed broken <!-- / --> handline
+        Allow unescaped / in regexp character classes.
 
 0.11    2009.06.09
         Fix .git MANIFEST

@@ -94,6 +94,13 @@ my @tests = (
 
     [ 'var o=$.extend(a,function(){alert(x);}', "var o = \$.extend(a, function() {\n    alert(x);\n}" ],
     [ 'var o=$.extend(a);function(){alert(x);}', "var o = \$.extend(a);\nfunction() {\n    alert(x);\n}" ],
+
+    # regexps
+    [ 'a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()" ],
+    [ 'a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()" ],
+    [ 'a(/a[b\\[', "a(/a[b\\[" ], # incomplete char class
+    # allow unescaped / in char classes
+    [ 'a(/[a/b]/);b()', "a(/[a/b]/);\nb()" ],
  );
 
 plan tests => scalar @tests + 4;
