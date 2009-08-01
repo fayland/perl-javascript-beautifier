@@ -256,10 +256,21 @@ sub js_beautify {
                 $last_type = $token_type;$last_text = $token_text;next;
             } elsif ( $token_text eq '--' || $token_text eq '++' ) { # unary operators special case
                 if ( $last_text eq ';' ) {
-                    # space for (;; ++i)
-                    $start_delim = 1;
-                    $end_delim = 0;
+                    if ( $current_mode eq 'BLOCK') {
+                        # { foo; --i }
+                        print_newline();
+                        $start_delim = 1;
+                        $end_delim = 0;
+                    } else {
+                        # space for (;; ++i)
+                        $start_delim = 1;
+                        $end_delim = 0;
+                    }
                 } else {
+                    if ($last_text eq '{') {
+                        # {--i
+                        print_newline();
+                    }
                     $start_delim = 0;
                     $end_delim = 0;
                 }

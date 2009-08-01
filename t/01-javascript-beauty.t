@@ -95,6 +95,11 @@ my @tests = (
     [ 'var o=$.extend(a,function(){alert(x);}', "var o = \$.extend(a, function () {\n    alert(x);\n}" ],
     [ 'var o=$.extend(a);function(){alert(x);}', "var o = \$.extend(a);\nfunction () {\n    alert(x);\n}" ],
 
+    ['{foo();--bar;}', "{\n    foo();\n    --bar;\n}"],
+    ['{foo();++bar;}', "{\n    foo();\n    ++bar;\n}"],
+    ['{--bar;}', "{\n    --bar;\n}"],
+    ['{++bar;}', "{\n    ++bar;\n}"],
+
     # regexps
     [ 'a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()" ],
     [ 'a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()" ],
