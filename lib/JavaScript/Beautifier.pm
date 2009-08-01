@@ -66,7 +66,7 @@ sub js_beautify {
         if ( $token_type eq 'TK_START_EXPR' ) {
             $var_line = 0;
             set_mode('EXPRESSION');
-            if ( $last_text eq ';' ) {
+            if ( $last_text eq ';' || $last_type eq 'TK_START_BLOCK' ) {
                 print_newline();
             } elsif ( $last_type eq 'TK_END_EXPR' || $last_type eq 'TK_START_EXPR' ) {
                 # do nothing on (( and )( and ][ and ]( ..
@@ -222,6 +222,7 @@ sub js_beautify {
             if ( $token_text eq ':' && $in_case ) {
                 print_token(); # colon really asks for separate treatment
                 print_newline();
+                $in_case = 0;
                 $last_type = $token_type;$last_text = $token_text;next;
             }
             if ( $token_text eq '::' ) {
@@ -229,7 +230,7 @@ sub js_beautify {
                 print_token();
                 $last_type = $token_type;$last_text = $token_text;next;
             }
-            $in_case = 0;
+            
             if ( $token_text eq ',' ) {
                 if ($var_line) {
                     if ( $var_line_tainted ) {
@@ -274,7 +275,10 @@ sub js_beautify {
                     $start_delim = 0;
                     $end_delim = 0;
                 }
-            } elsif ( $token_text eq '!' && $last_type eq 'TK_START_EXPR') {
+            } elsif ( ( $token_text eq '!' || $token_text eq '+' || $token_text eq '-' ) && ($last_text eq 'return' || $last_text eq 'case') ) {
+                $start_delim = 1;
+                $end_delim = 0;
+            } elsif ( ( $token_text eq '!' || $token_text eq '+' || $token_text eq '-' ) && $last_type eq 'TK_START_EXPR' ) {
                 # special case handling: if (!a)
                 $start_delim = 0;
                 $end_delim = 0;
@@ -289,10 +293,7 @@ sub js_beautify {
                 $start_delim = 0;
                 $end_delim = 0;
             } elsif ( $token_text eq ':' ) {
-                # zz: xx
-                # can't differentiate ternary op, so for now it's a ? b: c; without space before colon
-                if ( $last_text =~ /^\d+$/ ) {
-                    # a little help for ternary a ? 1 : 0;
+                if (is_ternary_op()) {
                     $start_delim = 1;
                 } else {
                     $start_delim = 0;
@@ -386,6 +387,46 @@ sub restore_mode {
     $do_block_just_closed = ( $current_mode eq 'DO_BLOCK' ) ? 1 : 0;
     $current_mode = pop @modes;
 }
+
+# Walk backwards from the colon to find a '?' (colon is part of a ternary op)
+# or a '{' (colon is part of a class literal). Along the way, keep track of
+# the blocks and expressions we pass so we only trigger on those chars in our
+# own level, and keep track of the colons so we only trigger on the matching '?'.
+sub is_ternary_op {
+    my $level = 0;
+    my $colon_count = 0;
+    foreach my $o (reverse @output) {
+        if ( $o eq ':' ) {
+            if ( $level == 0 ) {
+                $colon_count++;
+            }
+            next;
+        } elsif ( $o eq '?' ) {
+            if ( $level == 0 ) {
+                if ( $colon_count == 0 ) {
+                    return 1;
+                } else {
+                    $colon_count--;
+                }
+            }
+            next;
+        } elsif ( $o eq '{' ) {
+            if ( $level == 0 ) {
+                return 0;
+            }
+            $level--;
+            next;
+        }
+        if ( $o eq '(' or $o eq '[' ) {
+            $level--;
+            next;
+        } elsif ( $o eq ')' or $o eq ']' or $o eq '}' ) {
+            $level++;
+            next;
+        }
+    }
+}
+
 sub get_next_token {
     my $n_newlines = 0;
     

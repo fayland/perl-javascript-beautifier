@@ -1,7 +1,14 @@
 Revision history for JavaScript-Beautifier
 
-0.13
+0.13    2009.08.01
         Pre-increment and pre-decrement fix
+        puts spaces in front of colons in ternary expressions, e.g. a ? b : c
+        does not put spaces in front of colons in class literals with
+            numeric keys, e.g. { 1: "a", 2: "b" }
+        does not put spaces between urnary +/-/! and the operand, e.g.
+          [-a], case -1, return !a
+        puts a new line between a new block and the start of an
+          expression, e.g. function a() { (x || y).z() }
 
 0.12    2009.07.26
         fixed broken <!-- / --> handline
