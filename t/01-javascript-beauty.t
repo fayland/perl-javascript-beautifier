@@ -7,6 +7,7 @@ use JavaScript::Beautifier qw/js_beautify/;
 my $opts = {
 	indent_size => 4,
 	indent_character => ' ',
+	space_after_anon_function => 1,
 };
 
 # from http://github.com/einars/js-beautify/tree/master/beautify-tests.js
@@ -74,7 +75,6 @@ my @tests = (
  
     [ "do { a(); } while ( 1 );", "do {\n    a();\n} while (1);" ],
     [ "do {\n} while ( 1 );", "do {} while (1);" ],
-    [ "var a, b, c, d = 0, c = function() {}, d = '';", "var a, b, c, d = 0,\nc = function () {},\nd = '';" ],
     [ "delete x if (a) b();", "delete x\nif (a) b();" ],
     [ "delete x[x] if (a) b();", "delete x[x]\nif (a) b();" ],
     [ "for(var a=1,b=2)", "for (var a = 1, b = 2)" ],
@@ -104,9 +104,6 @@ my @tests = (
     ["<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->"],
     ["<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->"],
 
-    [ 'var o=$.extend(a,function(){alert(x);}', "var o = \$.extend(a, function () {\n    alert(x);\n}" ],
-    [ 'var o=$.extend(a);function(){alert(x);}', "var o = \$.extend(a);\nfunction () {\n    alert(x);\n}" ],
-
     ['{foo();--bar;}', "{\n    foo();\n    --bar;\n}"],
     ['{foo();++bar;}', "{\n    foo();\n    ++bar;\n}"],
     ['{--bar;}', "{\n    --bar;\n}"],
@@ -120,10 +117,32 @@ my @tests = (
     [ 'a(/[a/b]/);b()', "a(/[a/b]/);\nb()" ],
  );
 
-plan tests => scalar @tests + 4;
+plan tests => scalar @tests + 12;
 
 foreach my $t (@tests) {
 	my $run_js = js_beautify($t->[0], $opts );
+	is $run_js, $t->[1], $t->[0];
+}
+
+# test space_after_anon_function
+my @test_space_after_anon_function_true = (
+    ["// comment 1\n(function()", "// comment 1\n(function ()"], # typical greasemonkey start
+    ["var a1, b1, c1, d1 = 0, c = function() {}, d = '';", "var a1, b1, c1, d1 = 0,\nc = function () {},\nd = '';"],
+    ['var o1=$.extend(a,function(){alert(x);}', "var o1 = \$.extend(a, function () {\n    alert(x);\n}"],
+    ['var o1=$.extend(a);function(){alert(x);}', "var o1 = \$.extend(a);\nfunction () {\n    alert(x);\n}"]
+);
+foreach my $t (@test_space_after_anon_function_true) {
+	my $run_js = js_beautify($t->[0], { %$opts, space_after_anon_function => 1 } );
+	is $run_js, $t->[1], $t->[0];
+}
+my @test_space_after_anon_function_false = (
+    ["// comment 2\n(function()", "// comment 2\n(function()"], # typical greasemonkey start
+    ["var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\nc = function() {},\nd = '';"],
+    ['var o2=$.extend(a,function(){alert(x);}', "var o2 = \$.extend(a, function() {\n    alert(x);\n}"],
+    ['var o2=$.extend(a);function(){alert(x);}', "var o2 = \$.extend(a);\nfunction() {\n    alert(x);\n}"],
+);
+foreach my $t (@test_space_after_anon_function_false) {
+	my $run_js = js_beautify($t->[0], { %$opts, space_after_anon_function => 0 } );
 	is $run_js, $t->[1], $t->[0];
 }
 
