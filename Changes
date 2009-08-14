@@ -1,7 +1,8 @@
 Revision history for JavaScript-Beautifier
 
-0.14
+0.14    2009.08.14
         Added an option for the old "function ()" syntax.
+        Better handling of multi-dimensional arrays
 
 0.13    2009.08.01
         Pre-increment and pre-decrement fix

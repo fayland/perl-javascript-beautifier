@@ -115,6 +115,7 @@ my @tests = (
     [ 'a(/a[b\\[', "a(/a[b\\[" ], # incomplete char class
     # allow unescaped / in char classes
     [ 'a(/[a/b]/);b()', "a(/[a/b]/);\nb()" ],
+    [ 'a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]]" ],
  );
 
 plan tests => scalar @tests + 12;

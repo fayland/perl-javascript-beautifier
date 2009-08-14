@@ -66,7 +66,21 @@ sub js_beautify {
         
         if ( $token_type eq 'TK_START_EXPR' ) {
             $var_line = 0;
-            set_mode('EXPRESSION');
+            
+            if ( $token_text eq '[' ) {
+                if ( $current_mode eq '[EXPRESSION]') {
+                    # multidimensional arrays
+                    # (more like two-dimensional, though: deeper levels are treated the same as the second)
+                    print_newline();
+                    push @output, $indent_string;
+                }
+            }
+            if ( $token_text eq '[' ) {
+                set_mode('[EXPRESSION]');
+            } else {
+                set_mode('(EXPRESSION)');
+            }
+            
             if ( $last_text eq ';' || $last_type eq 'TK_START_BLOCK' ) {
                 print_newline();
             } elsif ( $last_type eq 'TK_END_EXPR' || $last_type eq 'TK_START_EXPR' ) {
@@ -84,8 +98,8 @@ sub js_beautify {
             print_token();
             $last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_END_EXPR' ) {
-            print_token();
             restore_mode();
+            print_token();
             $last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_START_BLOCK' ) {
             if ( $last_word eq 'do' ) {
@@ -147,7 +161,7 @@ sub js_beautify {
                 }
             } elsif ( $last_type eq 'TK_SEMICOLON' && ( $current_mode eq 'BLOCK' || $current_mode eq 'DO_BLOCK' ) ) {
                 $prefix = 'NEWLINE';
-            } elsif ( $last_type eq 'TK_SEMICOLON' && $current_mode eq 'EXPRESSION' ) {
+            } elsif ( $last_type eq 'TK_SEMICOLON' && ( $current_mode eq '[EXPRESSION]' || $current_mode eq '(EXPRESSION)' ) ) {
                 $prefix = 'SPACE';
             } elsif ( $last_type eq 'TK_STRING') {
                 $prefix = 'NEWLINE';
@@ -221,7 +235,7 @@ sub js_beautify {
                     $var_line = 0;
                 }
             }
-            if ($var_line && $token_text eq ',' && $current_mode eq 'EXPRESSION') {
+            if ($var_line && $token_text eq ',' && ( $current_mode eq '[EXPRESSION]' || $current_mode eq '(EXPRESSION)' ) ) {
                 # do not break on comma, for(var a = 1, b = 2)
                 $var_line_tainted = 0;
             }
