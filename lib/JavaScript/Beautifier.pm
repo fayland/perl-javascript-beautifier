@@ -3,7 +3,7 @@ package JavaScript::Beautifier;
 use warnings;
 use strict;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 our $AUTHORITY = 'cpan:FAYLAND';
 
 use base 'Exporter';
@@ -11,7 +11,7 @@ use vars qw/@EXPORT_OK/;
 @EXPORT_OK = qw/js_beautify/;
 
 my ( @input, @output, @modes );
-my ( $token_text, $last_type, $last_text, $last_word, $current_mode, $indent_string, $parser_pos, $in_case, $prefix, $token_type, $do_block_just_closed,$var_line, $var_line_tainted, $if_line_flag );
+my ( $token_text, $last_type, $last_text, $last_last_text, $last_word, $current_mode, $indent_string, $parser_pos, $in_case, $prefix, $token_type, $do_block_just_closed,$var_line, $var_line_tainted, $if_line_flag );
 
 my @whitespace = split('', "\n\r\t ");
 my @wordchar   = split('', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$');
@@ -42,6 +42,7 @@ sub js_beautify {
     $last_word = ''; # last 'TK_WORD' passed
     $last_type = 'TK_START_EXPR'; # last token type
     $last_text = ''; # last token text
+    $last_last_text = ''; # pre-last token text
     @output = ();
 
     $do_block_just_closed = 0;
@@ -59,7 +60,6 @@ sub js_beautify {
         my $t = get_next_token($parser_pos);
         $token_text = $t->[0];
         $token_type = $t->[1];
-        #print STDERR "text $token_text type $token_type last $last_text $last_type " . join('', @output) . "\n";
         if ( $token_type eq 'TK_EOF' ) {
             last;
         }
@@ -67,10 +67,14 @@ sub js_beautify {
         if ( $token_type eq 'TK_START_EXPR' ) {
             $var_line = 0;
             
-            if ( $token_text eq '[' ) {
-                if ( $current_mode eq '[EXPRESSION]') {
-                    # multidimensional arrays
-                    # (more like two-dimensional, though: deeper levels are treated the same as the second)
+            if ( $token_text eq '[' && $current_mode eq '[EXPRESSION]' ) {
+                # multidimensional arrays
+                # (more like two-dimensional, though: deeper levels are treated the same as the second)
+                if ( $last_last_text eq ']' && $last_text eq ',') {
+                    print_newline();
+                    push @output, $indent_string;
+                }
+                if ( $last_text eq '[' ) {
                     print_newline();
                     push @output, $indent_string;
                 }
@@ -96,11 +100,11 @@ sub js_beautify {
                 print_space();
             }
             print_token();
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_END_EXPR' ) {
             restore_mode();
             print_token();
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_START_BLOCK' ) {
             if ( $last_word eq 'do' ) {
                 set_mode('DO_BLOCK');
@@ -116,7 +120,7 @@ sub js_beautify {
             }
             print_token();
             indent();
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_END_BLOCK' ) {
             if ( $last_type eq 'TK_START_BLOCK' ) {
                 # nothing
@@ -128,14 +132,14 @@ sub js_beautify {
             }
             print_token();
             restore_mode();
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_WORD' ) {
             if ( $do_block_just_closed ) {
                 print_space();
                 print_token();
                 print_space();
                 $do_block_just_closed = 0;
-                $last_type = $token_type;$last_text = $token_text;next;
+                $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
             }
             if ( $token_text eq 'case' || $token_text eq 'default' ) {
                 if ( $last_text eq ':' ) {
@@ -149,7 +153,7 @@ sub js_beautify {
                 }
                 print_token();
                 $in_case = 1;
-                $last_type = $token_type;$last_text = $token_text;next;
+                $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
             }
             $prefix = 'NONE';
             if ( $last_type eq 'TK_END_BLOCK' ) {
@@ -213,11 +217,11 @@ sub js_beautify {
             if ( $token_text eq 'if' || $token_text eq 'else' ) {
                 $if_line_flag = 1;
             }
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_SEMICOLON' ) {
             print_token();
             $var_line = 0;
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_STRING' ) {
             if ( $last_type eq 'TK_START_BLOCK' || $last_type eq 'TK_END_BLOCK' || $last_type eq 'TK_SEMICOLON' ) {
                 print_newline();
@@ -225,7 +229,7 @@ sub js_beautify {
                 print_space();
             }
             print_token();
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_OPERATOR' ) {
             my $start_delim = 1;
             my $end_delim = 1;
@@ -243,12 +247,12 @@ sub js_beautify {
                 print_token(); # colon really asks for separate treatment
                 print_newline();
                 $in_case = 0;
-                $last_type = $token_type;$last_text = $token_text;next;
+                $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
             }
             if ( $token_text eq '::' ) {
                 # no spaces around exotic namespacing syntax operator
                 print_token();
-                $last_type = $token_type;$last_text = $token_text;next;
+                $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
             }
             
             if ( $token_text eq ',' ) {
@@ -274,7 +278,7 @@ sub js_beautify {
                         print_space();
                     }
                 }
-                $last_type = $token_type;$last_text = $token_text;next;
+                $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
             } elsif ( $token_text eq '--' || $token_text eq '++' ) { # unary operators special case
                 if ( $last_text eq ';' ) {
                     if ( $current_mode eq 'BLOCK') {
@@ -326,21 +330,21 @@ sub js_beautify {
             if ( $end_delim ) {
                 print_space();
             }
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ($token_type eq 'TK_BLOCK_COMMENT') {
             print_newline();
             print_token();
             print_newline();
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ($token_type eq 'TK_COMMENT') {
             # print_newline();
             print_space();
             print_token();
             print_newline();
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ($token_type eq 'TK_UNKNOWN') {
             print_token();
-            $last_type = $token_type;$last_text = $token_text;next;
+            $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         }
         $last_type = $token_type;
         $last_text = $token_text;

@@ -1,5 +1,8 @@
 Revision history for JavaScript-Beautifier
 
+0.15
+        Array tweaks
+
 0.14    2009.08.14
         Added an option for the old "function ()" syntax.
         Better handling of multi-dimensional arrays
