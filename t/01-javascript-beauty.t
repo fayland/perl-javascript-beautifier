@@ -118,9 +118,13 @@ my @tests = (
     [ 'a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]]" ],
     [ 'a=[a[1],b[4],c[d[7]]]', "a = [a[1], b[4], c[d[7]]]" ],
     [ '[1,2,[3,4,[5,6],7],8]', "[1, 2, [3, 4, [5, 6], 7], 8]" ],
- );
+    
+    [ '[[["1","2"],["3","4"]],[["5","6","7"],["8","9","0"]],[["1","2","3"],["4","5","6","7"],["8","9","0"]]]',
+      qq~[\n    [\n        ["1", "2"],\n        ["3", "4"]],\n    [\n        ["5", "6", "7"],\n        ["8", "9", "0"]],\n    [\n        ["1", "2", "3"],\n        ["4", "5", "6", "7"],\n        ["8", "9", "0"]]]~ ],
+    
+);
 
-plan tests => scalar @tests + 12;
+plan tests => scalar @tests + 13;
 
 foreach my $t (@tests) {
 	my $run_js = js_beautify($t->[0], $opts );
@@ -143,6 +147,7 @@ my @test_space_after_anon_function_false = (
     ["var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 0,\nc = function() {},\nd = '';"],
     ['var o2=$.extend(a,function(){alert(x);}', "var o2 = \$.extend(a, function() {\n    alert(x);\n}"],
     ['var o2=$.extend(a);function(){alert(x);}', "var o2 = \$.extend(a);\nfunction() {\n    alert(x);\n}"],
+    ['{[y[a]];keep_indent;}', "{\n    [y[a]];\n    keep_indent;\n}"],
 );
 foreach my $t (@test_space_after_anon_function_false) {
 	my $run_js = js_beautify($t->[0], { %$opts, space_after_anon_function => 0 } );

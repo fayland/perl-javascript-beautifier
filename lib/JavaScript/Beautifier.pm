@@ -11,7 +11,7 @@ use vars qw/@EXPORT_OK/;
 @EXPORT_OK = qw/js_beautify/;
 
 my ( @input, @output, @modes );
-my ( $token_text, $last_type, $last_text, $last_last_text, $last_word, $current_mode, $indent_string, $parser_pos, $in_case, $prefix, $token_type, $do_block_just_closed,$var_line, $var_line_tainted, $if_line_flag );
+my ( $token_text, $last_type, $last_text, $last_last_text, $last_word, $current_mode, $previous_mode, $indent_string, $parser_pos, $in_case, $prefix, $token_type, $do_block_just_closed, $var_line, $var_line_tainted, $if_line_flag );
 
 my @whitespace = split('', "\n\r\t ");
 my @wordchar   = split('', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$');
@@ -67,19 +67,24 @@ sub js_beautify {
         if ( $token_type eq 'TK_START_EXPR' ) {
             $var_line = 0;
             
-            if ( $token_text eq '[' && $current_mode eq '[EXPRESSION]' ) {
-                # multidimensional arrays
-                # (more like two-dimensional, though: deeper levels are treated the same as the second)
-                if ( $last_last_text eq ']' && $last_text eq ',') {
-                    print_newline();
-                    push @output, $indent_string;
-                }
-                if ( $last_text eq '[' ) {
-                    print_newline();
-                    push @output, $indent_string;
-                }
-            }
             if ( $token_text eq '[' ) {
+                if ( $last_type eq 'TK_WORD' ) {
+                    # this is array index specifier, break immediately
+                    set_mode('(EXPRESSION)');
+                    print_token();
+                    $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
+                }
+                if ( $current_mode eq '[EXPRESSION]' ) {
+                    if ( $last_last_text eq ']' && $last_text eq ',' ) {
+                        # ], [ goes to new line
+                        indent();
+                        print_newline();
+                    } elsif ($last_text eq '[') {
+                        indent();
+                        print_newline();
+                    }
+                }
+ 
                 set_mode('[EXPRESSION]');
             } else {
                 set_mode('(EXPRESSION)');
@@ -102,7 +107,11 @@ sub js_beautify {
             print_token();
             $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_END_EXPR' ) {
+            $previous_mode = $current_mode;
             restore_mode();
+            if ( $token_text eq ']' && $current_mode eq '[EXPRESSION]' && ($previous_mode ne '(EXPRESSION)') ) {
+                unindent();
+            }
             print_token();
             $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_START_BLOCK' ) {
