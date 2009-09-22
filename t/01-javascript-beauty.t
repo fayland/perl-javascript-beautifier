@@ -45,7 +45,7 @@ sub bt {
         my $wrapped_expectation = $expected;
         $wrapped_expectation =~ s/^(.+)$/    $1/mg;
         $wrapped_expectation = "{\n$wrapped_expectation\n    indent;\n}";
-        #test_beautifier($wrapped_input, $wrapped_expectation);
+        test_beautifier($wrapped_input, $wrapped_expectation);
     }
 }
 
