@@ -68,8 +68,9 @@ sub js_beautify {
             $var_line = 0;
             
             if ( $token_text eq '[' ) {
-                if ( $last_type eq 'TK_WORD' ) {
+                if ( $last_type eq 'TK_WORD' || $last_text eq ')' ) {
                     # this is array index specifier, break immediately
+		    # a[x], fn()[x]
                     set_mode('(EXPRESSION)');
                     print_token();
                     $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
