@@ -8,7 +8,7 @@ my $builder = Module::Build->new(
     dist_author         => 'Fayland Lam <fayland@gmail.com>',
     dist_version_from   => 'lib/JavaScript/Beautifier.pm',
     build_requires => {
-        'Test::More' => 0,
+        'Test::More' => '0.88',
         'Getopt::Long' => 0,
         'Pod::Usage' => 0,
     },

@@ -11,7 +11,7 @@ use vars qw/@EXPORT_OK/;
 @EXPORT_OK = qw/js_beautify/;
 
 my ( @input, @output, @modes );
-my ( $token_text, $last_type, $last_text, $last_last_text, $last_word, $current_mode, $previous_mode, $indent_string, $parser_pos, $in_case, $prefix, $token_type, $do_block_just_closed, $var_line, $var_line_tainted, $if_line_flag );
+my ( $token_text, $last_type, $last_text, $last_last_text, $last_word, $current_mode, $indent_string, $parser_pos, $in_case, $prefix, $token_type, $do_block_just_closed, $var_line, $var_line_tainted, $if_line_flag, $wanted_newline, $just_added_newline );
 
 my @whitespace = split('', "\n\r\t ");
 my @wordchar   = split('', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_$');
@@ -33,6 +33,7 @@ sub js_beautify {
     $opt_space_after_anon_function = exists $opts->{space_after_anon_function} ? $opts->{space_after_anon_function} : 0;
 
     # -------------------------------------
+    $just_added_newline = 0;
     $indent_string = '';
     while ( $opt_indent_size-- ) {
         $indent_string .= $opt_indent_character;
@@ -75,18 +76,22 @@ sub js_beautify {
                     print_token();
                     $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
                 }
-                if ( $current_mode eq '[EXPRESSION]' ) {
+                if ( $current_mode eq '[EXPRESSION]' || $current_mode eq '[INDENTED-EXPRESSION]' ) {
                     if ( $last_last_text eq ']' && $last_text eq ',' ) {
                         # ], [ goes to new line
                         indent();
                         print_newline();
+                        set_mode('[INDENTED-EXPRESSION]');
                     } elsif ($last_text eq '[') {
                         indent();
                         print_newline();
+                        set_mode('[INDENTED-EXPRESSION]');
+                    } else {
+                        set_mode('[EXPRESSION]');
                     }
+                } else {
+                    set_mode('[EXPRESSION]');
                 }
- 
-                set_mode('[EXPRESSION]');
             } else {
                 set_mode('(EXPRESSION)');
             }
@@ -108,11 +113,10 @@ sub js_beautify {
             print_token();
             $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_END_EXPR' ) {
-            $previous_mode = $current_mode;
-            restore_mode();
-            if ( $token_text eq ']' && $current_mode eq '[EXPRESSION]' && ($previous_mode ne '(EXPRESSION)') ) {
+            if ( $token_text eq ']' && $current_mode eq '[INDENTED-EXPRESSION]' ) {
                 unindent();
             }
+            restore_mode();
             print_token();
             $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_START_BLOCK' ) {
@@ -134,7 +138,15 @@ sub js_beautify {
         } elsif ( $token_type eq 'TK_END_BLOCK' ) {
             if ( $last_type eq 'TK_START_BLOCK' ) {
                 # nothing
-                trim_output();
+                if ($just_added_newline) {
+                    remove_indent();
+                    #  {
+                    #
+                    #  }
+                } else {
+                    #  {}
+                    trim_output();
+                }
                 unindent();
             } else {
                 unindent();
@@ -144,6 +156,8 @@ sub js_beautify {
             restore_mode();
             $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
         } elsif ( $token_type eq 'TK_WORD' ) {
+            # no, it's not you. even I have problems understanding how this works
+            # and what does what.
             if ( $do_block_just_closed ) {
                 print_space();
                 print_token();
@@ -175,7 +189,7 @@ sub js_beautify {
                 }
             } elsif ( $last_type eq 'TK_SEMICOLON' && ( $current_mode eq 'BLOCK' || $current_mode eq 'DO_BLOCK' ) ) {
                 $prefix = 'NEWLINE';
-            } elsif ( $last_type eq 'TK_SEMICOLON' && ( $current_mode eq '[EXPRESSION]' || $current_mode eq '(EXPRESSION)' ) ) {
+            } elsif ( $last_type eq 'TK_SEMICOLON' && is_expression($current_mode) ) {
                 $prefix = 'SPACE';
             } elsif ( $last_type eq 'TK_STRING') {
                 $prefix = 'NEWLINE';
@@ -249,7 +263,7 @@ sub js_beautify {
                     $var_line = 0;
                 }
             }
-            if ($var_line && $token_text eq ',' && ( $current_mode eq '[EXPRESSION]' || $current_mode eq '(EXPRESSION)' ) ) {
+            if ($var_line && $token_text eq ',' && is_expression($current_mode) ) {
                 # do not break on comma, for(var a = 1, b = 2)
                 $var_line_tainted = 0;
             }
@@ -381,6 +395,7 @@ sub print_newline {
     }
     
     if ( $output[ scalar @output - 1 ] ne "\n" || ! $ignore_repeated ) {
+        $just_added_newline = 1;
         push @output, "\n";
     }
     foreach my $i ( 0 .. $opt_indent_level - 1 ) {
@@ -397,6 +412,7 @@ sub print_space {
 }
 
 sub print_token {
+    $just_added_newline = 0;
     push @output, $token_text;
 }
 sub indent {
@@ -416,6 +432,10 @@ sub set_mode {
     my $mode = shift;
     push @modes, $current_mode;
     $current_mode = $mode;
+}
+sub is_expression {
+    my $mode = shift;
+    return ($mode eq '[EXPRESSION]' || $mode eq '[INDENTED-EXPRESSION]' || $mode eq '(EXPRESSION)') ? 1 : 0;
 }
 sub restore_mode {
     $do_block_just_closed = ( $current_mode eq 'DO_BLOCK' ) ? 1 : 0;
@@ -481,7 +501,7 @@ sub get_next_token {
         $c = $input[$parser_pos];
         $parser_pos++;
     };
-    my $wanted_newline = 0;
+    $wanted_newline = 0;
     if ( $opt_preserve_newlines ) {
         if ( $n_newlines > 1 ) {
             foreach my $i ( 0 .. 1 ) {
