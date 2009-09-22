@@ -56,13 +56,21 @@ bt( 'var a = 1 var b = 2', "var a = 1\nvar b = 2");
 bt( 'var a=1, b=c[d], e=6;', "var a = 1,\nb = c[d],\ne = 6;");
 bt( 'a = " 12345 "');
 bt( "a = ' 12345 '");
-bt( 'if (a == 1) b = 2', "if (a == 1) b = 2");
-bt( 'var a = 1 var b = 2', "var a = 1\nvar b = 2");
+bt( 'if (a == 1) b = 2;', "if (a == 1) b = 2;");
 bt( 'if(1){2}else{3}', "if (1) {\n    2\n} else {\n    3\n}" );
-bt( 'if(1||2)', 'if (1 || 2)' );
+bt( 'if(1||2);', 'if (1 || 2);' );
 bt( '(a==1)||(b==2)', '(a == 1) || (b == 2)' );
-bt( 'var a = 1 if (2) 3', "var a = 1\nif (2) 3" );
+bt( 'var a = 1 if (2) 3;', "var a = 1\nif (2) 3;" );
+bt('a /= 5');
+bt('a = 0.5 * 3');
+bt('a *= 10.55');
+bt('a < .5');
+bt('a <= .5');
+bt('a<.5', 'a < .5');
+bt('a<=.5', 'a <= .5');
+bt('a = 0xff;');
 bt( 'a=0xff+4', 'a = 0xff + 4' );
+bt( 'a = [1, 2, 3, 4]');
 bt( 'F*(g/=f)*g+b', 'F * (g /= f) * g + b' );
 bt( 'a.b({c:d})', "a.b({\n    c: d\n})" );
 bt( "a.b\n(\n{\nc:\nd\n}\n)", "a.b({\n    c: d\n})" );
@@ -73,25 +81,33 @@ bt( 'a?(b):c', 'a ? (b) : c' );
 bt( 'x={a:1,b:w=="foo"?x:y,c:z}', "x = {\n    a: 1,\n    b: w == \"foo\" ? x : y,\n    c: z\n}");
 bt( 'x=a?b?c?d:e:f:g;', 'x = a ? b ? c ? d : e : f : g;' );
 bt( 'x=a?b?c?d:{e1:1,e2:2}:f:g;', "x = a ? b ? c ? d : {\n    e1: 1,\n    e2: 2\n} : f : g;");
-bt( 'if(!a)', 'if (!a)' );
+bt( 'function void(void) {}' );
+bt( 'if(!a)foo();', 'if (!a) foo();' );
 bt( 'a=~a', 'a = ~a' );
 bt( 'a;/*comment*/b;', "a;\n/*comment*/\nb;" );
-bt( 'if(a)break', "if (a) break" );
+bt( 'if(a)break;', "if (a) break;" );
 bt( 'if(a){break}', "if (a) {\n    break\n}" );
-bt( 'if((a))', 'if ((a))' );
+bt( 'if((a))foo();', 'if ((a)) foo();' );
 bt( 'for(var i=0;;)', 'for (var i = 0;;)' );
 bt( 'a++;', 'a++;' );
 bt( 'for(;;i++)', 'for (;; i++)' );
 bt( 'for(;;++i)', 'for (;; ++i)' );
 bt( 'return(1)', 'return (1)' );
 bt( 'try{a();}catch(b){c();}finally{d();}', "try {\n    a();\n} catch(b) {\n    c();\n} finally {\n    d();\n}" );
-bt( 'if(a){b();}else if(', "if (a) {\n    b();\n} else if (" );
+bt('(xx)()'); # magic function call
+bt('a[1]()'); # another magic function call
+bt( 'if(a){b();}else if(c) foo();', "if (a) {\n    b();\n} else if (c) foo();" );
 bt( 'switch(x) {case 0: case 1: a(); break; default: break}', "switch (x) {\ncase 0:\ncase 1:\n    a();\n    break;\ndefault:\n    break\n}" );
 bt( 'switch(x){case -1:break;case !y:break;}', "switch (x) {\ncase -1:\n    break;\ncase !y:\n    break;\n}" );
+bt( 'a !== b' );
 bt( 'if (a) b(); else c();', "if (a) b();\nelse c();" );
+bt( "// comment\n(function something() {})"); # typical greasemonkey start
+bt( "{\n\n    x();\n\n}"); # was: duplicating newlines
+bt( 'if (a in b) foo();');
 bt( '{a:1, b:2}', "{\n    a: 1,\n    b: 2\n}" );
 bt( 'a={1:[-1],2:[+1]}', "a = {\n    1: [-1],\n    2: [+1]\n}" );
 bt( 'var l = {\'a\':\'1\', \'b\':\'2\'}', "var l = {\n    'a': '1',\n    'b': '2'\n}" );
+bt( 'if (template.user[n] in bk) foo();');
 bt( '{{}/z/}', "{\n    {}\n    /z/\n}" );
 bt( 'return 45', "return 45" );
 bt( 'If[1]', "If[1]" );
@@ -106,16 +122,22 @@ bt( 'a = 11-10', "a = 11 - 10" );
 bt( "a = 1;// comment\n", "a = 1; // comment" );
 bt( "a = 1; // comment\n", "a = 1; // comment" );
 bt( "a = 1;\n // comment\n", "a = 1;\n// comment" );
- 
-bt( "if\n(a)\nb()", "if (a) b()" ); # test for proper newline removal
+
+bt( "if (a) {\n    do();\n}"); # was: extra space appended
+bt( "if\n(a)\nb();", "if (a) b();" ); # test for proper newline removal
  
 bt( "if (a) {\n// comment\n}else{\n// comment\n}", "if (a) {\n    // comment\n} else {\n    // comment\n}" ); # if/else statement with empty body
 bt( "if (a) {\n// comment\n// comment\n}", "if (a) {\n    // comment\n    // comment\n}" ); # multiple comments indentation
-bt( "if (a) b() else c()", "if (a) b()\nelse c()" );
-bt( "if (a) b() else if c() d()", "if (a) b()\nelse if c() d()" );
- 
-bt( "do { a(); } while ( 1 );", "do {\n    a();\n} while (1);" );
-bt( "do {\n} while ( 1 );", "do {} while (1);" );
+bt( "if (a) b() else c();", "if (a) b()\nelse c();" );
+bt( "if (a) b() else if c() d();", "if (a) b()\nelse if c() d();" );
+
+bt("{}");
+bt("{\n\n}");
+bt("do { a(); } while ( 1 );", "do {\n    a();\n} while (1);");
+bt("do {} while (1);");
+bt("do {\n} while (1);", "do {} while (1);");
+bt("do {\n\n} while (1);");
+bt("var a = x(a, b, c)");
 bt( "delete x if (a) b();", "delete x\nif (a) b();" );
 bt( "delete x[x] if (a) b();", "delete x[x]\nif (a) b();" );
 bt( "for(var a=1,b=2)", "for (var a = 1, b = 2)" );
@@ -124,8 +146,14 @@ bt( "for(var a=1,b=2,c=3;d<3;d++)", "for (var a = 1, b = 2, c = 3; d < 3; d++)" 
 bt( "function x(){(a||b).c()}", "function x() {\n    (a || b).c()\n}" );
 bt( "function x(){return - 1}", "function x() {\n    return -1\n}" );
 bt( "function x(){return ! a}", "function x() {\n    return !a\n}" );
-    
+
+bt("a = 'a'\nb = 'b'");
+bt("a = /reg/exp");
+bt("a = /reg/");
+bt('/abc/.test()');
+bt('/abc/i.test()');
 bt( "{/abc/i.test()}", "{\n    /abc/i.test()\n}" );
+
 bt( "{x=#1=[]}", "{\n    x = #1=[]\n}");
 bt( "{a:#1={}}", "{\n    a: #1={}\n}");
 bt( "{a:#1#}", "{\n    a: #1#\n}" );
@@ -137,12 +165,20 @@ test_beautifier( "<!--\nvoid();\n// -->", "<!--\nvoid();\n// -->");
 test_beautifier( "a=/regexp", "a = /regexp" ); # incomplete regexp
 
 bt( "{a:#1=[],b:#1#,c:#999999#}", "{\n    a: #1=[],\n    b: #1#,\n    c: #999999#\n}" );
-    
+
+bt("a = 1e+2");
+bt("a = 1e-2");
 bt( "do{x()}while(a>1)", "do {\n    x()\n} while (a > 1)" );
+
 bt( "x(); /reg/exp.match(something)", "x();\n/reg/exp.match(something)" );
+
+bt("something();(", "something();\n(");
+
+bt("function namespace::something()");
 
 test_beautifier( "<!--\nsomething();\n-->", "<!--\nsomething();\n-->" );
 test_beautifier( "<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->");
+
 test_beautifier( "<!--\nsomething();\n-->\n<!--\nsomething();\n-->", "<!--\nsomething();\n-->\n<!--\nsomething();\n-->");
 test_beautifier( "<!--\nif(i<0){bla();}\n-->\n<!--\nif(i<0){bla();}\n-->", "<!--\nif (i < 0) {\n    bla();\n}\n-->\n<!--\nif (i < 0) {\n    bla();\n}\n-->");
 
@@ -151,12 +187,13 @@ bt( '{foo();++bar;}', "{\n    foo();\n    ++bar;\n}");
 bt( '{--bar;}', "{\n    --bar;\n}");
 bt( '{++bar;}', "{\n    ++bar;\n}");
 
-    # regexps
+# regexps
 bt( 'a(/abc\\/\\/def/);b()', "a(/abc\\/\\/def/);\nb()" );
 bt( 'a(/a[b\\[\\]c]d/);b()', "a(/a[b\\[\\]c]d/);\nb()" );
-bt( 'a(/a[b\\[', "a(/a[b\\[" ); # incomplete char class
-    # allow unescaped / in char classes
+test_beautifier('a(/a[b\\[', "a(/a[b\\["); # incomplete char class
+# allow unescaped / in char classes
 bt( 'a(/[a/b]/);b()', "a(/[a/b]/);\nb()" );
+
 bt( 'a=[[1,2],[4,5],[7,8]]', "a = [\n    [1, 2],\n    [4, 5],\n    [7, 8]]" );
 bt( 'a=[a[1],b[4],c[d[7]]]', "a = [a[1], b[4], c[d[7]]]" );
 bt( '[1,2,[3,4,[5,6],7],8]', "[1, 2, [3, 4, [5, 6], 7], 8]" );
