@@ -7,7 +7,7 @@ WriteMakefile
           'PREREQ_PM' => {
                            'Getopt::Long' => '0',
                            'Pod::Usage' => '0',
-                           'Test::More' => '0'
+                           'Test::More' => '0.88'
                          },
           'INSTALLDIRS' => 'site',
           'EXE_FILES' => [
