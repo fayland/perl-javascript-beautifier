@@ -3,7 +3,7 @@ package JavaScript::Beautifier;
 use warnings;
 use strict;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 our $AUTHORITY = 'cpan:FAYLAND';
 
 use base 'Exporter';

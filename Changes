@@ -1,5 +1,8 @@
 Revision history for JavaScript-Beautifier
 
+0.17
+        Allex Wang's fix for else { if handling
+
 0.16    2009.09.22
         Fixed array indentation regressions.
 
