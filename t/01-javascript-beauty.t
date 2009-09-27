@@ -217,6 +217,7 @@ bt( "var a2, b2, c2, d2 = 0, c = function() {}, d = '';", "var a2, b2, c2, d2 = 
 bt( 'var o2=$.extend(a,function(){alert(x);}', "var o2 = \$.extend(a, function() {\n    alert(x);\n}");
 bt( 'var o2=$.extend(a);function(){alert(x);}', "var o2 = \$.extend(a);\nfunction() {\n    alert(x);\n}");
 bt( '{[y[a]];keep_indent;}', "{\n    [y[a]];\n    keep_indent;\n}");
+bt( 'if (x) {y} else { if (x) {y}}', "if (x) {\n    y\n} else {\n    if (x) {\n        y\n    }\n}" );
 
 $opts->{indent_size} = 1;
 $opts->{indent_char} = ' ';

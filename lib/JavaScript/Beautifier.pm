@@ -217,7 +217,7 @@ sub js_beautify {
                 } elsif ( $last_type ne 'TK_END_EXPR' ) {
                     if ( ($last_type ne 'TK_START_EXPR' || $token_text ne 'var') && $last_text ne ':' ) {
                         # no need to force newline on 'var': for (var x = 0...)
-                        if ( $token_text eq 'if' && $last_word eq 'else' ) {
+                        if ( $token_text eq 'if' && $last_word eq 'else' && $last_text ne '{' ) {
                             # no newline for } else if {
                             print_space();
                         }  else {
