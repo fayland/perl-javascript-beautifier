@@ -5,6 +5,7 @@ use warnings;
 use JavaScript::Beautifier qw/js_beautify/;
 use Getopt::Long;
 use Pod::Usage;
+use IO::File;
 
 my $file = pop @ARGV;
 pod2usage(1) unless ($file);
@@ -23,10 +24,17 @@ GetOptions(
 
 pod2usage(1) if $params{help};
 
-open(my $fh, '<', $file);
+my $file_io;
+if ($file eq '-') {
+    my $io = new IO::Handle;
+    $file_io = $io->fdopen(fileno(STDIN),"r");
+} else {
+    $file_io = new IO::File($file, "<");
+    defined $file_io or croak "can't open $file: $!";
+}
 local $/;
-my $js_source_code = <$fh>;
-close($fh);
+my $js_source_code = <$file_io>;
+$file_io->close;
 
 my $pretty_js = js_beautify( $js_source_code, {
     indent_size => $params{s} || 4,
