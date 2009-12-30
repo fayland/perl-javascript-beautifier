@@ -10,7 +10,6 @@ use Carp qw/croak/;
 
 my $file = pop @ARGV;
 pod2usage(1) unless ($file);
-die "$! - $file" unless -f $file;
 
 my %params;
 GetOptions(
