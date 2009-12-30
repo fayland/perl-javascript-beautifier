@@ -1,7 +1,8 @@
 Revision history for JavaScript-Beautifier
 
-0.17
+0.17    2009.12.30
         Allex Wang's fix for else { if handling
+        js_beautify.pl [options] - (from STDIN) (RT 53220)
 
 0.16    2009.09.22
         Fixed array indentation regressions.

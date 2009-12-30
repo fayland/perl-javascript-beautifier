@@ -6,6 +6,7 @@ use JavaScript::Beautifier qw/js_beautify/;
 use Getopt::Long;
 use Pod::Usage;
 use IO::File;
+use Carp qw/croak/;
 
 my $file = pop @ARGV;
 pod2usage(1) unless ($file);
@@ -61,6 +62,7 @@ js_beautify.pl - command tool to beautify your javascript files
 =head1 SYNOPSIS
 
     js_beautify.pl [options] FILE
+    js_beautify.pl [options] -
 
 =head1 OPTIONS
 
