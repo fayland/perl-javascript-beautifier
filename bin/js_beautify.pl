@@ -44,7 +44,7 @@ my $pretty_js = js_beautify( $js_source_code, {
 
 if ( $params{output} or $params{o} ) {
     my $to_file = $params{output} || $file;
-    open(my $fh, '>', $file);
+    open(my $fh, '>', $to_file) or die("could not open $to_file: $!");
     print $fh $pretty_js;
     close($fh);
 } else {
