@@ -3,7 +3,7 @@ package JavaScript::Beautifier;
 use warnings;
 use strict;
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 our $AUTHORITY = 'cpan:FAYLAND';
 
 use base 'Exporter';
@@ -25,7 +25,7 @@ my ( $opt_indent_level, $opt_indent_size, $opt_indent_character, $opt_preserve_n
 
 sub js_beautify {
     my ( $js_source_code, $opts ) = @_;
-    
+
     $opt_indent_size = $opts->{indent_size} || 4;
     $opt_indent_character = $opts->{indent_character} || ' ';
     $opt_preserve_newlines = exists $opts->{preserve_newlines} ? $opts->{preserve_newlines} : 1;
@@ -39,7 +39,7 @@ sub js_beautify {
         $indent_string .= $opt_indent_character;
     }
     @input = split('', $js_source_code);
-    
+
     $last_word = ''; # last 'TK_WORD' passed
     $last_type = 'TK_START_EXPR'; # last token type
     $last_text = ''; # last token text
@@ -54,7 +54,7 @@ sub js_beautify {
     # some formatting depends on that.
     $current_mode = 'BLOCK';
     @modes = ( $current_mode );
-    
+
     $parser_pos = 0; # parser position
     $in_case = 0; # flag for parser that case/default has been processed, and next colon needs special attention
     while ( 1 ) {
@@ -64,10 +64,10 @@ sub js_beautify {
         if ( $token_type eq 'TK_EOF' ) {
             last;
         }
-        
+
         if ( $token_type eq 'TK_START_EXPR' ) {
             $var_line = 0;
-            
+
             if ( $token_text eq '[' ) {
                 if ( $last_type eq 'TK_WORD' || $last_text eq ')' ) {
                     # this is array index specifier, break immediately
@@ -95,7 +95,7 @@ sub js_beautify {
             } else {
                 set_mode('(EXPRESSION)');
             }
-            
+
             if ( $last_text eq ';' || $last_type eq 'TK_START_BLOCK' ) {
                 print_newline();
             } elsif ( $last_type eq 'TK_END_EXPR' || $last_type eq 'TK_START_EXPR' ) {
@@ -201,7 +201,7 @@ sub js_beautify {
                 print_space();
                 $prefix = 'NEWLINE';
             }
-            
+
             if ( $last_type ne 'TK_END_BLOCK' && (grep { lc($token_text) eq $_ } ('else', 'catch', 'finally')) ) {
                 print_newline();
             } elsif ( (grep { $token_text eq $_ } @line_starter) || $prefix eq 'NEWLINE' ) {
@@ -278,7 +278,7 @@ sub js_beautify {
                 print_token();
                 $last_last_text = $last_text;$last_type = $token_type;$last_text = $token_text;next;
             }
-            
+
             if ( $token_text eq ',' ) {
                 if ($var_line) {
                     if ( $var_line_tainted ) {
@@ -373,7 +373,7 @@ sub js_beautify {
         $last_type = $token_type;
         $last_text = $token_text;
     }
-    
+
     my $output = join('', @output);
     $output =~ s/\n+$//;
     return $output;
@@ -389,11 +389,11 @@ sub print_newline {
     $ignore_repeated = 1 unless defined $ignore_repeated;
     $if_line_flag = 0;
     trim_output();
-    
+
     if ( not scalar @output ) {
         return; # no newline on start of file
     }
-    
+
     if ( $output[ scalar @output - 1 ] ne "\n" || ! $ignore_repeated ) {
         $just_added_newline = 1;
         push @output, "\n";
@@ -483,14 +483,14 @@ sub is_ternary_op {
 
 sub get_next_token {
     my $n_newlines = 0;
-    
+
     if ( $parser_pos >= scalar @input ) {
         return ['', 'TK_EOF'];
     }
-    
+
     my $c = $input[$parser_pos];
     $parser_pos++;
-    
+
     while ( grep { $_ eq $c } @whitespace ) {
         if ( $parser_pos >= scalar @input ) {
             return ['', 'TK_EOF'];
@@ -521,7 +521,7 @@ sub get_next_token {
                 }
             }
         }
-        
+
         # small and surprisingly unugly hack for 1E-10 representation
         if ( $parser_pos != scalar @input && $c =~ /^[0-9]+[Ee]$/ && ($input[$parser_pos] eq '-' || $input[$parser_pos] eq '+') ) {
             my $sign = $input[$parser_pos];
@@ -618,7 +618,7 @@ sub get_next_token {
                         return [$resulting_string, 'TK_STRING'];
                      }
                  }
-                 
+
              } else {
                 # and handle string also separately
                 while ( $esc || $input[$parser_pos] ne $sep ) {
@@ -648,7 +648,7 @@ sub get_next_token {
         }
         return [$resulting_string, 'TK_STRING'];
     }
-    
+
     if ($c eq '#') {
         # Spidermonkey-specific sharp variables for circular references
         # https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
@@ -679,7 +679,7 @@ sub get_next_token {
         }
         return ['-->', 'TK_COMMENT'];
     }
-    
+
     if ( grep { $c eq $_ } @punct ) {
          while ( $parser_pos < scalar @input && (grep { $c . $input[$parser_pos] eq $_ } @punct) ) {
              $c .= $input[$parser_pos];
