@@ -17,10 +17,13 @@ meta-spec:
   version: '1.4'
 name: JavaScript-Beautifier
 provides:
+  Code::TidyAll::Plugin::JSBeautifier:
+    file: lib/Code/TidyAll/Plugin/JSBeautifier.pm
+    version: '0.18'
   JavaScript::Beautifier:
     file: lib/JavaScript/Beautifier.pm
-    version: '0.18'
+    version: '0.19'
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/fayland/perl-javascript-beautifier/tree/master
-version: '0.18'
+version: '0.19'

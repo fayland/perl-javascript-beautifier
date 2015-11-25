@@ -1,5 +1,8 @@
 Revision history for JavaScript-Beautifier
 
+0.19    2015-11-25
+        - Code::TidyAll pluging to use JavaScript::Beautifier (Gabor Szabo)
+
 0.17    2009.12.30
         Allex Wang's fix for else { if handling
         js_beautify.pl [options] - (from STDIN) (RT 53220)
