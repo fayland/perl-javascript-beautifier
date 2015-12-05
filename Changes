@@ -1,5 +1,8 @@
 Revision history for JavaScript-Beautifier
 
+0.20    2015-12-05
+        - fix POD by gregor herrmann
+
 0.19    2015-11-25
         - Code::TidyAll pluging to use JavaScript::Beautifier (Gabor Szabo)
 

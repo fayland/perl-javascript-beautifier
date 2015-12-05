@@ -36,6 +36,10 @@ __END__
 
 =pod
 
+=head1 NAME
+
+Code::TidyAll::Plugin::JSBeautifier - Use JavaScript::Beautifier with tidyall
+
 =head1 SYNOPSIS
 
 This module requires L<Code::TidyAll>.

@@ -22,8 +22,8 @@ provides:
     version: '0.18'
   JavaScript::Beautifier:
     file: lib/JavaScript/Beautifier.pm
-    version: '0.19'
+    version: '0.20'
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/fayland/perl-javascript-beautifier/tree/master
-version: '0.19'
+version: '0.20'
