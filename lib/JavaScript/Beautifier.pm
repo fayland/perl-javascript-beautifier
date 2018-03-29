@@ -719,9 +719,9 @@ You can check it through L<http://jsbeautifier.org/>
 
 =head2 js_beautify( $js_source_code, $opts );
 
-beautify javascript.
+Beautify javascript source code contained in a string with the included options, described below. 
 
-=head3 options
+=head3 Options
 
 =over 4
 
@@ -738,7 +738,7 @@ if you prefer Tab than Space, try:
 
 =item preserve_newlines
 
-default is 1
+Default is 1
 
     my $in = "var\na=dont_preserve_newlines";
     my $out = "var a = dont_preserve_newlines";
@@ -751,7 +751,7 @@ default is 1
 
 =item space_after_anon_function
 
-default is 0
+Default is 0
 
 =back
 
@@ -761,7 +761,7 @@ Fayland Lam, C<< <fayland at gmail.com> >>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2008 Fayland Lam, all rights reserved.
+Copyright 2008-2018 Fayland Lam, all rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
