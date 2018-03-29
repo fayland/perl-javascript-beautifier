@@ -26,6 +26,8 @@ my ( $opt_indent_level, $opt_indent_size, $opt_indent_character, $opt_preserve_n
 sub js_beautify {
     my ( $js_source_code, $opts ) = @_;
 
+    $js_source_code =~ s/\\/\\\\/g;  # prevent \\ -> \
+
     $opt_indent_size = $opts->{indent_size} || 4;
     $opt_indent_character = $opts->{indent_character} || ' ';
     $opt_preserve_newlines = exists $opts->{preserve_newlines} ? $opts->{preserve_newlines} : 1;
