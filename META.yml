@@ -22,9 +22,9 @@ provides:
     version: '0.18'
   JavaScript::Beautifier:
     file: lib/JavaScript/Beautifier.pm
-    version: '0.21'
+    version: '0.22'
 resources:
   license: http://dev.perl.org/licenses/
   repository: http://github.com/fayland/perl-javascript-beautifier/tree/master
-version: '0.21'
+version: '0.22'
 x_serialization_backend: 'CPAN::Meta::YAML version 0.018'
