@@ -2,8 +2,9 @@ package JavaScript::Beautifier;
 
 use warnings;
 use strict;
+use JavaScript::Packer1 qw/js_packer/;
 
-our $VERSION = '0.21';
+our $VERSION = '0.22';
 our $AUTHORITY = 'cpan:FAYLAND';
 
 use base 'Exporter';
@@ -26,7 +27,7 @@ my ( $opt_indent_level, $opt_indent_size, $opt_indent_character, $opt_preserve_n
 sub js_beautify {
     my ( $js_source_code, $opts ) = @_;
 
-    $js_source_code =~ s/\\/\\\\/g;  # prevent \\ -> \
+    $js_source_code = js_packer($js_source_code);
 
     $opt_indent_size = $opts->{indent_size} || 4;
     $opt_indent_character = $opts->{indent_character} || ' ';
@@ -716,6 +717,11 @@ This module is mostly a Perl-rewrite of L<http://github.com/einars/js-beautify/t
 You can check it through L<http://jsbeautifier.org/>
 
 =head1 FUNCTIONS
+
+$js_source_code = <<EOF
+  a = 12;
+  {return '\\w+';}
+EOF
 
 =head2 js_beautify( $js_source_code, $opts );
 
