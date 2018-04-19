@@ -19,7 +19,7 @@ my $builder = Module::Build->new(
 					      'IO::File' => 0,
 					     },
 				 add_to_cleanup      => [ 'JavaScript-Beautifier-*' ],
-				 create_makefile_pl => 'traditional',
+				 # create_makefile_pl => 'traditional',
 				 script_files => [
         'bin/js_beautify.pl',
     ],

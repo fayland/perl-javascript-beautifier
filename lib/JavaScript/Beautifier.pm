@@ -4,7 +4,7 @@ use warnings;
 use strict;
 use JavaScript::Packer1 qw/js_packer/;
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
 our $AUTHORITY = 'cpan:FAYLAND';
 
 use base 'Exporter';
@@ -718,14 +718,14 @@ You can check it through L<http://jsbeautifier.org/>
 
 =head1 FUNCTIONS
 
-$js_source_code = <<EOF
+$js_source_code = <<'EOF';
   a = 12;
   {return '\\w+';}
 EOF
 
 =head2 js_beautify( $js_source_code, $opts );
 
-Beautify javascript source code contained in a string with the included options, described below. 
+Beautify javascript source code contained in a string with the included options, described below.
 
 =head3 Options
 
