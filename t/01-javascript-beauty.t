@@ -270,6 +270,18 @@ EOF
 chomp $xxexpected;
 test_beautifier($xxinput,$xxexpected);
 
+$xxinput = <<'EOF';
+eval(function(p,a,c,k,e,r){e=function(c){return c.toString(36)};if('0'.replace(0,e)==0){while(c--)r[e(c)]=k[c];k=[function(e){return r[e]||e}];e=function(){return'[0-9ab]'};c=1};while(c--)if(k[c])p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c]);return p}('$(5).a(6(){ $(\'.8\').0(1); $(\'.b\').0(4); $(\'.9\').0(2); $(\'.7\').0(3)})',[],12,'html|52136|555|65103|8088|document|function|r542c|r8ce6|rb0de|ready|rfab0'.split('|'),0,{}))
+EOF
+
+$xxexpected = <<'EOF';
+$(document).ready(function() {
+ $(\'.r8ce6\').html(52136); $(\'.rfab0\').html(8088); $(\'.rb0de\').html(555); $(\'.r542c\').html(65103)})
+EOF
+
+chomp $xxexpected;
+test_beautifier($xxinput,$xxexpected);
+
 done_testing( $tests_num );
 
 1;
