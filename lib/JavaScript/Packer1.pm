@@ -59,33 +59,41 @@ sub get_index($) {
     return $idx;
 }
 
-sub do_decode() {
-    my ($rest, $ix);
-    my ($ix1, $ix2, $ix3, $ix4, $muv, $muv1);
-    $decoded     = '';
-    @alfa_values = split('', $ALPHABET);
-    @symbols     = split('\\' . $splitchar, $symtab);
-    for (my $i = 0; $i < $#symbols; $i++) {
-        if ($symbols[$i] eq '') {
-            $symbols[$i] = $i;
+sub do_decode(){
+  my ($rest, $ix);
+  my ($ix1, $ix2, $ix3, $ix4, $muv, $muv1);
+  $decoded = '';
+  @alfa_values = split('', $ALPHABET);
+  @symbols = split('\\'.$splitchar, $symtab);
+  for(my $i = 0; $i < $#symbols;$i++){
+      if($symbols[$i] eq ''){
+        $symbols[$i] = $i;
+      }
+  }
+  $rest = $payload;
+  while($rest =~ /(\W+)?(\w+)(\W+)?/){
+    $rest = $';
+    $ix1 = 0;
+    if(defined($2)){$ix1 = get_index($2);}
+    if(defined($1) and defined($3)){
+         $decoded .= "$1$symbols[$ix1]$3";
+    } elsif(defined($1)){
+         $decoded .= "$1$symbols[$ix1]";
+    }  elsif(defined($3)){
+         if(defined($symbols[$ix1])){
+           $decoded .= "$symbols[$ix1]$3";
+         } else{
+           $decoded .= "$ix1$3";
+         }
+    } elsif(defined($2)){
+        if(defined($symbols[$ix1])){
+           $decoded .= "$symbols[$ix1]";
+        } else{
+          $decoded .= "$ix1";
         }
     }
-    $rest = $payload;
-    while ($rest =~ /(\W+)?(\w+)(\W+)?/) {
-        $rest = $';
-        $ix1  = 0;
-        if (defined($2)) { $ix1 = get_index($2); }
-        if (defined($1) and defined($3)) {
-            $decoded .= "$1$symbols[$ix1]$3";
-        } elsif (defined($1)) {
-            $decoded .= "$1$symbols[$ix1]";
-        } elsif (defined($3)) {
-            $decoded .= "$symbols[$ix1]$3";
-        } elsif (defined($2)) {
-            $decoded .= "$symbols[$ix1]";
-        }
-    }
-    $decoded .= $rest;
+   } # while
+  $decoded .= $rest;   
 }
 
 sub js_packer {
