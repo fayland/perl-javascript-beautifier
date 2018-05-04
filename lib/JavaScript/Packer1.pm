@@ -60,8 +60,8 @@ sub get_index($) {
 }
 
 sub do_decode(){
-  my ($rest, $ix);
-  my ($ix1, $ix2, $ix3, $ix4, $muv, $muv1);
+  my ($rest, $ix1);
+  my ($one, $two, $three);
   $decoded = '';
   @alfa_values = split('', $ALPHABET);
   @symbols = split('\\'.$splitchar, $symtab);
@@ -74,27 +74,22 @@ sub do_decode(){
   while($rest =~ /(\W+)?(\w+)(\W+)?/){
     $rest = $';
     $ix1 = 0;
-    if(defined($2)){$ix1 = get_index($2);}
-    if(defined($1) and defined($3)){
-         $decoded .= "$1$symbols[$ix1]$3";
-    } elsif(defined($1)){
-         $decoded .= "$1$symbols[$ix1]";
-    }  elsif(defined($3)){
-         if(defined($symbols[$ix1])){
-           $decoded .= "$symbols[$ix1]$3";
-         } else{
-           $decoded .= "$ix1$3";
-         }
-    } elsif(defined($2)){
-        if(defined($symbols[$ix1])){
-           $decoded .= "$symbols[$ix1]";
-        } else{
-          $decoded .= "$ix1";
+    $one = $two = $three = '';
+    if(defined($2)){
+       $ix1 = get_index($2);
+       if(defined($symbols[$ix1])){
+          $two = $symbols[$ix1];
+       } else{
+          $two = "$2";
         }
     }
-   } # while
+    if(defined($1)){$one = $1;}
+    if(defined($3)){$three = $3;}
+    $decoded .= "$one$two$three";
+  } # while
   $decoded .= $rest;   
 }
+
 
 sub js_packer {
     my ($js_source_code) = @_;
